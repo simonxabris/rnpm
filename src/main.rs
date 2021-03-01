@@ -1,14 +1,30 @@
+use clap::{App, Arg};
 use dialoguer;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::env::args;
 use std::env::current_dir;
 use std::fs::read_to_string;
 use std::process::{Command, Stdio};
 
 fn main() {
-    let args: Vec<String> = args().collect();
-    let possible_search_arg = args.get(1);
+    let args = App::new("rnpm")
+        .about("Find the script you're looking for.")
+        .arg(Arg::with_name("script").takes_value(false).required(false))
+        .arg(
+            Arg::with_name("manager")
+                .short("m")
+                .long("manager")
+                .value_name("PACKAGE MANAGER")
+                .takes_value(true)
+                .possible_values(&["npm", "yarn", "pnpm"])
+                .required(false)
+                .default_value("npm"),
+        )
+        .get_matches();
+
+    let possible_search_arg = args.value_of("script");
+    // safe because the manager arg has a default value.
+    let possible_package_manager = args.value_of("manager").unwrap();
 
     let mut cwd = current_dir().expect("Couldn't access current directory");
     cwd.push("package.json");
@@ -40,7 +56,7 @@ fn main() {
 
     let selected_script_index = selector.expect("No value was selected.");
 
-    let mut child = Command::new("npm")
+    let mut child = Command::new(possible_package_manager)
         .arg("run")
         .arg(scripts[selected_script_index])
         .stdout(Stdio::inherit())
