@@ -18,13 +18,22 @@ fn main() {
                 .takes_value(true)
                 .possible_values(&["npm", "yarn", "pnpm"])
                 .required(false)
-                .default_value("npm"),
         )
         .get_matches();
 
+    let has_yarn_lock = std::fs::File::open("yarn.lock").is_ok();
+    let has_pnpm_lock = std::fs::File::open("pnpm-lock.yaml").is_ok();
+
     let possible_search_arg = args.value_of("script");
-    // safe because the manager arg has a default value.
-    let possible_package_manager = args.value_of("manager").unwrap();
+    let possible_package_manager = if let Some(manager) = args.value_of("manager") {
+        manager
+    } else {
+        match (has_yarn_lock, has_pnpm_lock) {
+            (true, false) => "yarn",
+            (false, true) => "pnpm",
+            _ => "npm"
+        }
+    };
 
     let mut cwd = current_dir().expect("Couldn't access current directory");
     cwd.push("package.json");
