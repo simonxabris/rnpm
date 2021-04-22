@@ -58,19 +58,15 @@ fn main() {
     let package_json: PackageJson =
         serde_json::from_str(&package_json_contents[..]).expect("package.json is not valid JSON.");
 
-    let scripts: Vec<&String> = if let Some(arg) = possible_search_arg {
-        let mut matching_scripts: Vec<&String> = Vec::new();
-        for script in package_json.scripts.keys() {
-            if script == arg && run_exact_flag {
-                execute_command(package_manager, script);
-            } else if script.contains(arg) {
-                matching_scripts.push(script);
+    let scripts: Vec<&String> = match possible_search_arg {
+        Some(arg) => package_json.scripts.keys().filter(|script| {
+            if script == &arg && run_exact_flag {
+                execute_command(package_manager, arg);
             }
-        }
 
-        matching_scripts
-    } else {
-        package_json.scripts.keys().collect()
+            script.contains(arg)
+        }).collect(),
+        None => package_json.scripts.keys().collect()
     };
 
     if scripts.len() == 0 {
