@@ -48,8 +48,6 @@ fn main() {
     };
     let run_exact_flag = args.is_present("run-exact");
 
-    println!("run exact flag: {:?}", run_exact_flag);
-
     let mut cwd = current_dir().expect("Couldn't access current directory");
     cwd.push("package.json");
 
