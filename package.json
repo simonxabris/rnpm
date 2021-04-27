@@ -3,6 +3,7 @@
     "start": "echo start",
     "start:staging": "echo start:staging",
     "test": "echo test",
-    "test:ci": "exit 1"
+    "test:ci": "exit 1",
+    "build": "echo build"
   }
 }

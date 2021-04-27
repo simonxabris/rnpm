@@ -78,13 +78,19 @@ fn main() {
     if scripts.len() == 0 {
         println!("Could not find any scripts.");
         std::process::exit(0);
+    } else if scripts.len() == 1 {
+        println!("Running script: {}", scripts[0]);
+
+        execute_command(package_manager, scripts[0]);
     }
 
     let selected_script = Select::new(&scripts)
         .display()
         .expect("Failed to display options.");
 
+    println!("\r");
     println!("Running script: {}", selected_script);
+    println!("\r");
 
     execute_command(package_manager, selected_script);
 }
