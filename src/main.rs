@@ -1,18 +1,22 @@
+mod select;
+
 use clap::{App, Arg};
-use dialoguer;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, process};
 use std::env::current_dir;
 use std::fs::read_to_string;
 use std::process::{Command, Stdio};
+use std::{collections::HashMap, process};
+
+use select::Select;
 
 fn main() {
     let args = App::new("rnpm")
         .about("Find the script you're looking for.")
-        .arg(Arg::with_name("script")
-            .takes_value(false)
-            .required(false)
-            .help("The string you're searching for")
+        .arg(
+            Arg::with_name("script")
+                .takes_value(false)
+                .required(false)
+                .help("The string you're searching for"),
         )
         .arg(
             Arg::with_name("manager")
@@ -21,7 +25,7 @@ fn main() {
                 .value_name("PACKAGE MANAGER")
                 .takes_value(true)
                 .possible_values(&["npm", "yarn", "pnpm"])
-                .required(false)
+                .required(false),
         )
         .arg(
             Arg::with_name("run-exact")
@@ -29,7 +33,7 @@ fn main() {
                 .long("run-exact")
                 .takes_value(false)
                 .required(false)
-                .help("If set, immediately run the script that matches exactly.")
+                .help("If set, immediately run the script that matches exactly."),
         )
         .get_matches();
 
@@ -43,7 +47,7 @@ fn main() {
         match (has_yarn_lock, has_pnpm_lock) {
             (true, false) => "yarn",
             (false, true) => "pnpm",
-            _ => "npm"
+            _ => "npm",
         }
     };
     let run_exact_flag = args.is_present("run-exact");
@@ -57,14 +61,18 @@ fn main() {
         serde_json::from_str(&package_json_contents[..]).expect("package.json is not valid JSON.");
 
     let scripts: Vec<&String> = match possible_search_arg {
-        Some(arg) => package_json.scripts.keys().filter(|script| {
-            if script == &arg && run_exact_flag {
-                execute_command(package_manager, arg);
-            }
+        Some(arg) => package_json
+            .scripts
+            .keys()
+            .filter(|script| {
+                if script == &arg && run_exact_flag {
+                    execute_command(package_manager, arg);
+                }
 
-            script.contains(arg)
-        }).collect(),
-        None => package_json.scripts.keys().collect()
+                script.contains(arg)
+            })
+            .collect(),
+        None => package_json.scripts.keys().collect(),
     };
 
     if scripts.len() == 0 {
@@ -72,15 +80,13 @@ fn main() {
         std::process::exit(0);
     }
 
-    let selector = dialoguer::Select::with_theme(&dialoguer::theme::ColorfulTheme::default())
-        .items(&scripts)
-        .default(0)
-        .interact_on_opt(&dialoguer::console::Term::stdout())
-        .expect("Failed to display options");
+    let selected_script = Select::new(&scripts)
+        .display()
+        .expect("Failed to display options.");
 
-    let selected_script_index = selector.expect("No value was selected.");
+    println!("Running script: {}", selected_script);
 
-    execute_command(package_manager, scripts[selected_script_index]);
+    execute_command(package_manager, selected_script);
 }
 
 fn execute_command(package_manager: &str, command: &str) -> ! {
