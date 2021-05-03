@@ -2,7 +2,7 @@ use std::io::stdout;
 
 use crossterm::event::poll;
 use crossterm::{
-    cursor::{position, MoveUp},
+    cursor::MoveUp,
     event::{read, Event, KeyCode, KeyEvent, KeyModifiers},
     execute,
     style::{Color, Print, ResetColor, SetForegroundColor},
@@ -71,10 +71,6 @@ where
             }
 
             self.render()?;
-
-            if event == Event::Key(KeyCode::Char('c').into()) {
-                println!("Cursor position: {:?}\r", position());
-            }
 
             if let Event::Resize(_, _) = event {
                 let (original_size, new_size) = flush_resize_events(event);
