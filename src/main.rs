@@ -60,7 +60,7 @@ fn main() {
     let package_json: PackageJson =
         serde_json::from_str(&package_json_contents[..]).expect("package.json is not valid JSON.");
 
-    let scripts: Vec<&String> = match possible_search_arg {
+    let mut scripts: Vec<&String> = match possible_search_arg {
         Some(arg) => package_json
             .scripts
             .keys()
@@ -83,6 +83,8 @@ fn main() {
 
         execute_command(package_manager, scripts[0]);
     }
+
+    scripts.sort_by(|a, b| a.cmp(b));
 
     let selected_script = Select::new(&scripts)
         .display()
