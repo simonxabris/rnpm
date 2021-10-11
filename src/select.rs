@@ -82,6 +82,7 @@ where
             }
 
             if event == Event::Key(KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL)) {
+                disable_raw_mode()?;
                 std::process::exit(0);
             }
         }
