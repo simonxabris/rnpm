@@ -72,12 +72,8 @@ where
 
             self.render()?;
 
-            if let Event::Resize(_, _) = event {
-                let (original_size, new_size) = flush_resize_events(event);
-                println!("Resize from: {:?}, to: {:?}", original_size, new_size);
-            }
-
             if event == Event::Key(KeyCode::Enter.into()) {
+                disable_raw_mode()?;
                 break;
             }
 
