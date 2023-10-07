@@ -19,7 +19,7 @@ fn main() {
             Arg::with_name("script")
                 .takes_value(false)
                 .required(false)
-                .help("The string you're searching for"),
+                .help("The script you're trying to run. If none provided, you can select the desired on from a list of all the available ones."),
         )
         .arg(
             Arg::with_name("manager")
@@ -27,7 +27,7 @@ fn main() {
                 .long("manager")
                 .value_name("PACKAGE MANAGER")
                 .takes_value(true)
-                .possible_values(&["npm", "yarn", "pnpm"])
+                .possible_values(&["npm", "yarn", "pnpm", "bun"])
                 .required(false),
         )
         .arg(
